@@ -95,7 +95,7 @@ const Home: NextPage = () => {
   return (
     <>
       <main className="flex flex-col items-center">
-        <h1 className="text-3xl pt-4">Squirrels Lair's Gæstebog</h1>
+        <h1 className="text-3xl pt-4">Squirrels Lair Gæstebog</h1>
         <div className="pt-10">
           {session ? (
             <>

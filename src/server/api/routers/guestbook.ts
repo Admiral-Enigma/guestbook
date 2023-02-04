@@ -8,7 +8,7 @@ export const guestbookRouter = createTRPCRouter({
       return await ctx.prisma.guestBook.findMany({
         select: {
           name: true,
-          message: true
+          message: true,
         },
         orderBy: {
           createdAt: "desc"

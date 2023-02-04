@@ -1,6 +1,87 @@
-import { sign } from "crypto";
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useState } from "react";
+import { api } from "../utils/api";
+
+
+const GuestBookEntries = () => {
+  const { data: guestBookEntries, isLoading } = api.guestbook.getAll.useQuery();
+
+  if (isLoading) return <div>Henter beskeder...</div>;
+
+
+  return (
+    <div className="flex flex-col gap-4">
+      {guestBookEntries?.map((entry, index) => {
+        return (
+          <div key={index}>
+            <p>{entry.message}</p>
+            <span>- {entry.name}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+const Form = () => {
+  const [message, setMessage] = useState("");
+  const { data: session, status } = useSession();
+  const utils = api.useContext();
+
+  const postMessage = api.guestbook.postMessage.useMutation({
+    onMutate: async (newEntry) => {
+      await utils.guestbook.getAll.cancel();
+
+      utils.guestbook.getAll.setData(undefined, (prevEntries) => {
+        if (prevEntries) {
+          return [newEntry, ...prevEntries];
+        } else {
+          return [newEntry]
+        }
+      })
+    },
+    onSettled: async () => {
+      await utils.guestbook.getAll.invalidate();
+    },
+  });
+
+  if (status !== "authenticated") return null;
+
+
+  return (
+    <form
+      className="flex gap-2"
+      onSubmit={(event) => {
+        event.preventDefault();
+
+        postMessage.mutate({
+          name: session.user?.name as string,
+          message,
+        });
+
+        setMessage("")
+      }}
+    >
+      <input 
+        type="text"
+        className="rounded-md border-2 border-zinc-800 bg-neutral-900 px-4 py-2 focus:outline-none"
+        placeholder="Din hilsen..."
+        minLength={2}
+        maxLength={100}
+        value={message}
+        onChange={(event) => setMessage(event.target.value)}
+      />
+
+      <button
+        type="submit"
+        className="rounded-md border-2 border-zinc-800 p-2 focus:outline-none"
+      >
+        Submit
+      </button>
+    </form>
+  )
+}
 
 
 const Home: NextPage = () => {
@@ -25,6 +106,9 @@ const Home: NextPage = () => {
                 onClick={() => {
                 signOut().catch(console.log)
               }}>Log ud</button>
+              <div className="pt-6">
+                <Form/>
+              </div>
             </>
           ) : (
             <button 
@@ -35,6 +119,9 @@ const Home: NextPage = () => {
 
             }}>Login med discord</button>
           )}
+        </div>
+        <div className="pt-10">
+          <GuestBookEntries />
         </div>
       </main>
     </>

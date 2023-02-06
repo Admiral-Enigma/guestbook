@@ -109,15 +109,26 @@ const Home: NextPage = () => {
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              className="mx-auto block rounded-md bg-neutral-800 py-3 px-6 text-center hover:bg-neutral-700"
-              onClick={() => {
-                signIn("discord").catch(console.log);
-              }}
-            >
-              Login med discord
-            </button>
+            <>
+              <button
+                type="button"
+                className="mx-auto block rounded-md bg-neutral-800 py-3 px-6 text-center hover:bg-neutral-700"
+                onClick={() => {
+                  signIn("discord").catch(console.log);
+                }}
+              >
+                Login med discord
+              </button>
+              <button
+                type="button"
+                className="mx-auto block rounded-md bg-neutral-800 py-3 px-6 text-center hover:bg-neutral-700"
+                onClick={() => {
+                  signIn("auth0").catch(console.log);
+                }}
+              >
+                Login med Email/Password
+              </button>
+            </>
           )}
         </div>
         <div className="pt-6">
